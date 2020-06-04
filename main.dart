@@ -10,7 +10,7 @@ void main() {
       '..', 'build/web');
 
   var handler = createStaticHandler(pathToBuild,
-      defaultDocument: 'index.html');
+      defaultDocument: 'index.php');
 
   var portEnv = Platform.environment['PORT'];
   var port = portEnv == null ? 9999 : int.parse(portEnv);
