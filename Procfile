@@ -1,1 +1,1 @@
-process: ./dart-sdk/bin/dart Kosi-Anyaegbuna.dart
+web: ./dart-sdk/bin/dart /scripts/Kosi-Anyaegbuna.dart
