@@ -1,19 +1,23 @@
-import 'dart:io';
-import 'dart:json' as JSON;
+import 'dart:io' show Platform;
+import 'dart:async' show runZoned;
+import 'package:path/path.dart' show join, dirname;
+import 'package:shelf/shelf_io.dart' as io;
+import 'package:shelf_static/shelf_static.dart';
 
-main() {
-  var port = int.parse(Platform.environment['PORT']);
-  HttpServer.bind('0.0.0.0', port).then((HttpServer server) {
-    print('Server started on port: ${port}');
-    server.listen((HttpRequest request) {
-      var resp = JSON.stringify({
-        'Dart on Heroku': true,
-        'Buildpack URL': 'https://github.com/igrigorik/heroku-buildpack-dart',
-        'Environment': Platform.environment}
-      );
-      request.response..headers.set(HttpHeaders.CONTENT_TYPE, 'application/json')
-                      ..write(resp)
-                      ..close();
-    });
-  });
+void main() {
+  // Assumes the server lives in bin/ and that `pub build` ran
+  var pathToBuild = join(dirname(Platform.script.toFilePath()),
+      '..', 'build/web');
+
+  var handler = createStaticHandler(pathToBuild,
+      defaultDocument: 'index.html');
+
+  var portEnv = Platform.environment['PORT'];
+  var port = portEnv == null ? 9999 : int.parse(portEnv);
+
+  runZoned(() {
+    io.serve(handler, '0.0.0.0', port);
+    print("Serving $pathToBuild on port $port");
+  },
+  onError: (e, stackTrace) => print('Oh noes! $e $stackTrace'));
 }
